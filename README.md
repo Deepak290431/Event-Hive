@@ -1,3 +1,4 @@
+
 # EventHive (MERN)
 
 EventHive is a starter MERN stack for event discovery, booking, and QR check-in. It includes a Node/Express API with MongoDB models plus a Vite/React frontend using Chart.js, QR generation, and react-qr-scanner.
@@ -36,4 +37,7 @@ The app runs at `http://localhost:5173`.
 - Configure `VITE_API_URL` to point to the backend.
 
 This is a minimal scaffold; extend validation, role checks, analytics, and error handling as you build out production features.
+
+=======
+# Event-Hive
 
