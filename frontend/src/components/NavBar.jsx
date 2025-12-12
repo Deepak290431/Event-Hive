@@ -14,9 +14,19 @@ const NavBar = () => {
 
   return (
     <header className="navbar">
-      <Link to="/" className="brand" style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none' }}>
+      <Link to="/" className="brand" style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none', position: 'relative' }}>
         <EventHiveLogo size={32} />
-        EventHive
+        <span style={{ 
+          position: 'relative',
+          background: 'linear-gradient(45deg, var(--primary), #8b5cf6, var(--primary), #8b5cf6)',
+          backgroundSize: '200% 200%',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text',
+          animation: 'shining 3s ease-in-out infinite'
+        }}>
+          EventHive
+        </span>
       </Link>
       <nav style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
         <Link 

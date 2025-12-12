@@ -38,4 +38,30 @@ export const checkIn = async (req, res, next) => {
   }
 };
 
+export const getCheckInStats = async (req, res, next) => {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const todayCheckIns = await Attendance.countDocuments({
+      createdAt: { $gte: today }
+    });
+    
+    const totalCheckIns = await Attendance.countDocuments();
+    
+    const recentCheckIns = await Attendance.find()
+      .populate('booking')
+      .sort({ createdAt: -1 })
+      .limit(5);
+    
+    res.json({
+      today: todayCheckIns,
+      total: totalCheckIns,
+      recent: recentCheckIns
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 
