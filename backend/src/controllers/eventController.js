@@ -31,6 +31,33 @@ export const getEvent = async (req, res, next) => {
   }
 };
 
+export const updateEvent = async (req, res, next) => {
+  try {
+    const event = await Event.findById(req.params.id);
+    if (!event) return res.status(404).json({ message: "Event not found" });
+
+    const isOwner = event.organizer?.toString() === req.user._id.toString();
+    const isAdmin = req.user.role === "admin";
+    const isCommunityEvent = event.organizer === null;
+    if (!isOwner && !isAdmin && !isCommunityEvent) {
+      return res.status(403).json({ message: "Not authorized to update this event" });
+    }
+
+    const { title, description, location, startTime, endTime, capacity } = req.body;
+    if (title) event.title = title;
+    if (description) event.description = description;
+    if (location) event.location = location;
+    if (startTime) event.startTime = startTime;
+    if (endTime) event.endTime = endTime;
+    if (capacity) event.capacity = capacity;
+
+    await event.save();
+    res.json(event);
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const deleteEvent = async (req, res, next) => {
   try {
     const event = await Event.findById(req.params.id);
@@ -38,7 +65,8 @@ export const deleteEvent = async (req, res, next) => {
 
     const isOwner = event.organizer?.toString() === req.user._id.toString();
     const isAdmin = req.user.role === "admin";
-    if (!isOwner && !isAdmin) {
+    const isCommunityEvent = event.organizer === null; // Allow deletion of sample/community events
+    if (!isOwner && !isAdmin && !isCommunityEvent) {
       return res.status(403).json({ message: "Not authorized to delete this event" });
     }
 
