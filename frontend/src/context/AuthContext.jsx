@@ -21,6 +21,21 @@ export const AuthProvider = ({ children }) => {
     }
   }, [auth]);
 
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      // Clear authentication when browser/tab is closed
+      localStorage.removeItem("eh_auth");
+    };
+
+    // Add event listener for browser/tab close
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    // Cleanup event listener on component unmount
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
+
   const login = (payload) => {
     const authData = {
       user: payload.user || payload,
