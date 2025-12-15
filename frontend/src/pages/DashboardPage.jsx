@@ -9,6 +9,7 @@ ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 const DashboardPage = () => {
   const api = useAuthorizedApi();
   const [bookings, setBookings] = useState([]);
+  const [cancelConfirm, setCancelConfirm] = useState({ show: false, bookingId: null });
 
   useEffect(() => {
     api.get("/bookings").then(({ data }) => {
@@ -29,8 +30,18 @@ const DashboardPage = () => {
   };
 
   const handleCancel = async (id) => {
-    await api.patch(`/bookings/${id}/cancel`);
-    setBookings((prev) => prev.filter((b) => b._id !== id));
+    setCancelConfirm({ show: true, bookingId: id });
+  };
+
+  const confirmCancel = async () => {
+    try {
+      await api.patch(`/bookings/${cancelConfirm.bookingId}/cancel`);
+      setBookings((prev) => prev.filter((b) => b._id !== cancelConfirm.bookingId));
+      setCancelConfirm({ show: false, bookingId: null });
+    } catch (error) {
+      console.error("Cancel error:", error);
+      alert("Failed to cancel booking");
+    }
   };
 
   return (
@@ -56,6 +67,70 @@ const DashboardPage = () => {
         <h2>Booking summary</h2>
         <Bar data={chartData} />
       </div>
+
+      {/* Cancel Confirmation Dialog */}
+      {cancelConfirm.show && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            padding: '2rem',
+            maxWidth: '400px',
+            width: '90%',
+            textAlign: 'center'
+          }}>
+            <h2 style={{ marginTop: 0, color: '#333', marginBottom: '1rem' }}>
+              Cancel Booking?
+            </h2>
+            <p style={{ color: '#666', marginBottom: '2rem', fontSize: '1rem' }}>
+              Are you sure you want to cancel this booking? This action cannot be undone.
+            </p>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+              <button
+                onClick={() => setCancelConfirm({ show: false, bookingId: null })}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  backgroundColor: '#f0f0f0',
+                  color: '#333',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  fontWeight: '500'
+                }}
+              >
+                No, Keep Booking
+              </button>
+              <button
+                onClick={confirmCancel}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  backgroundColor: '#e74c3c',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  fontWeight: '500'
+                }}
+              >
+                Yes, Cancel Booking
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 };

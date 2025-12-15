@@ -1,15 +1,37 @@
 import QRCode from "qrcode";
 import Booking from "../models/Booking.js";
 import Event from "../models/Event.js";
+import crypto from "crypto";
 
 export const createBooking = async (req, res, next) => {
   try {
-    const event = await Event.findById(req.body.eventId);
+    const { eventId, paymentId, orderId, signature } = req.body;
+    const event = await Event.findById(eventId);
     if (!event) return res.status(404).json({ message: "Event not found" });
+
+    // If event has a price, verify payment
+    if (event.price > 0) {
+      if (!paymentId || !orderId || !signature) {
+        return res.status(400).json({ message: "Payment details required for paid events" });
+      }
+
+      // Verify Razorpay signature
+      const body = `${orderId}|${paymentId}`;
+      const expectedSignature = crypto
+        .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+        .update(body.toString())
+        .digest("hex");
+
+      if (expectedSignature !== signature) {
+        return res.status(400).json({ message: "Invalid payment signature" });
+      }
+    }
 
     const booking = await Booking.create({
       event: event._id,
       user: req.user._id,
+      paymentId: paymentId || null,
+      orderId: orderId || null,
     });
 
     const qrPayload = { bookingId: booking._id.toString(), eventId: event._id.toString() };

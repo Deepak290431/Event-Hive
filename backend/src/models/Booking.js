@@ -6,6 +6,8 @@ const bookingSchema = new mongoose.Schema(
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     status: { type: String, enum: ["booked", "cancelled", "checked-in"], default: "booked" },
     qrCode: { type: String },
+    paymentId: { type: String },
+    orderId: { type: String },
   },
   { timestamps: true }
 );

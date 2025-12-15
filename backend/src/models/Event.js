@@ -8,6 +8,7 @@ const eventSchema = new mongoose.Schema(
     startTime: { type: Date, required: true },
     endTime: { type: Date, required: true },
     capacity: { type: Number, default: 100 },
+    price: { type: Number, required: true, default: 0 },
     organizer: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     image: { type: String },
     qrTemplate: { type: String },

@@ -96,20 +96,70 @@ const EventsPage = () => {
     );
   }, [searchQuery, events]);
 
-  const handleBook = (eventId) => {
-    if (!user) return alert("Login to book");
-    setConfirmModal({ show: true, type: "book", eventId });
+  const handleBook = (event) => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    setConfirmModal({ show: true, type: "book", event });
   };
 
   const handleConfirmBook = async () => {
     try {
-      await authApi.post("/bookings", { eventId: confirmModal.eventId });
-      setConfirmModal({ show: false, type: null, eventId: null });
-      setSuccessModal({ show: true, message: "Booking created! View QR in dashboard.", type: "tick" });
-      setTimeout(() => setSuccessModal({ show: false, message: "", type: null }), 3000);
+      const event = confirmModal.event;
+      const amount = Math.round(event.price * 100); // Convert to paise
+
+      // Create Razorpay order
+      const { data: order } = await authApi.post("/payments/create-order", {
+        amount,
+        currency: "INR",
+        receipt: `booking_${event._id}_${Date.now()}`,
+      });
+
+      // Initialize Razorpay
+      const options = {
+        key: "rzp_test_YOUR_KEY_HERE", // Replace with your Razorpay key
+        amount: order.amount,
+        currency: order.currency,
+        name: "EventHive",
+        description: `Booking for ${event.title}`,
+        order_id: order.id,
+        handler: async function (response) {
+          // Verify payment on backend
+          const { data: booking } = await authApi.post("/bookings", {
+            eventId: event._id,
+            paymentId: response.razorpay_payment_id,
+            orderId: response.razorpay_order_id,
+            signature: response.razorpay_signature,
+          });
+
+          setEvents((prev) =>
+            prev.map((e) =>
+              e._id === booking.event
+                ? { ...e, stats: { ...e.stats, bookings: e.stats.bookings + 1 } }
+                : e
+            )
+          );
+          setConfirmModal({ show: false });
+          navigate(`/booking-success/${booking._id}`);
+        },
+        modal: {
+          ondismiss: function () {
+            setConfirmModal({ show: false });
+          },
+        },
+        prefill: {
+          name: user.name,
+          email: user.email,
+        },
+      };
+
+      const razorpay = new window.Razorpay(options);
+      razorpay.open();
     } catch (error) {
-      console.error("Booking error:", error);
-      alert(error.response?.data?.message || "Failed to create booking");
+      console.error("Payment error:", error);
+      alert("Payment failed. Please try again.");
+      setConfirmModal({ show: false });
     }
   };
 
@@ -395,6 +445,11 @@ const EventsPage = () => {
                   )}
                 </div>
                 <div className="event-footer">
+                  {ev.price > 0 && (
+                    <div className="event-price" style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#10b981', marginBottom: '0.5rem' }}>
+                      ₹{ev.price}
+                    </div>
+                  )}
                   {isOrganizer ? (
                     <>
                       <button className="ghost" onClick={() => handleEdit(ev._id)}>
@@ -405,7 +460,7 @@ const EventsPage = () => {
                       </button>
                     </>
                   ) : (
-                    <button onClick={() => handleBook(ev._id)} className="animated-button" style={{ width: '100%', marginTop: '1rem' }}>
+                    <button onClick={() => handleBook(ev)} className="animated-button" style={{ width: '100%', marginTop: '1rem' }}>
                       <span className="circle"></span>
                       <span className="text">Book Now</span>
                       <svg className="arr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -565,7 +620,7 @@ const EventsPage = () => {
             <p style={{ color: '#666', marginBottom: '2rem', fontSize: '1rem' }}>
               {confirmModal.type === 'delete' 
                 ? 'Are you sure you want to delete this event? This action cannot be undone.'
-                : 'Are you sure you want to book this event? You will receive a QR code for check-in.'}
+                : `Are you sure you want to book this event?${confirmModal.event?.price > 0 ? ` Payment of ₹${confirmModal.event.price} will be required.` : ' You will receive a QR code for check-in.'}`}
             </p>
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
               <button

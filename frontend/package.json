@@ -17,6 +17,7 @@
     "react-dom": "^18.3.1",
     "react-qr-scanner": "^1.0.0-alpha.11",
     "react-router-dom": "^6.26.2",
+    "razorpay": "^2.9.4",
     "@babel/runtime": "^7.26.0"
   },
   "devDependencies": {
