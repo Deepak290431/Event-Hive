@@ -14,16 +14,19 @@ const NavBar = () => {
 
   return (
     <header className="navbar">
-      <Link to="/" className="brand" style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none', position: 'relative' }}>
-        <EventHiveLogo size={32} />
+      <Link to="/" className="brand" style={{ fontSize: '2rem', fontWeight: '900', color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none', position: 'relative' }}>
+        <EventHiveLogo size={40} />
         <span style={{ 
           position: 'relative',
-          background: 'linear-gradient(45deg, var(--primary), #8b5cf6, var(--primary), #8b5cf6)',
-          backgroundSize: '200% 200%',
+          background: 'linear-gradient(45deg, #667eea, #764ba2, #f093fb, #667eea, #ffd700, #ff6b6b, #667eea)',
+          backgroundSize: '400% 400%',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
           backgroundClip: 'text',
-          animation: 'shining 3s ease-in-out infinite'
+          color: '#667eea',
+          animation: 'superShining 4s ease-in-out infinite',
+          textShadow: '0 0 20px rgba(102, 126, 234, 0.5), 0 0 40px rgba(102, 126, 234, 0.3)',
+          filter: 'drop-shadow(0 0 10px rgba(102, 126, 234, 0.4))'
         }}>
           EventHive
         </span>

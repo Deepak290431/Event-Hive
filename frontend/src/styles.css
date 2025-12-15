@@ -66,6 +66,30 @@
   }
 }
 
+/* Super Shining Animation */
+@keyframes superShining {
+  0% {
+    background-position: 0% 50%;
+    filter: drop-shadow(0 0 8px rgba(102, 126, 234, 0.3));
+  }
+  25% {
+    background-position: 50% 25%;
+    filter: drop-shadow(0 0 12px rgba(118, 75, 162, 0.4));
+  }
+  50% {
+    background-position: 100% 50%;
+    filter: drop-shadow(0 0 15px rgba(240, 147, 251, 0.5));
+  }
+  75% {
+    background-position: 75% 75%;
+    filter: drop-shadow(0 0 12px rgba(255, 107, 107, 0.4));
+  }
+  100% {
+    background-position: 0% 50%;
+    filter: drop-shadow(0 0 8px rgba(102, 126, 234, 0.3));
+  }
+}
+
 @keyframes fadeInDown {
   from {
     opacity: 0;
