@@ -31,15 +31,16 @@ const HomePage = () => {
     api.get('/events')
       .then(({ data }) => {
         const today = new Date('2025-12-15'); // Today's date
-        const oneMonthFromNow = new Date(today);
-        oneMonthFromNow.setMonth(oneMonthFromNow.getMonth() + 1);
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1); // First day of current month
+        const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0); // Last day of current month
         
         const filteredEvents = data.filter(event => {
           const eventDate = new Date(event.startTime);
-          // Filter out specific events and only show events after 1 month from today
+          // Filter out specific events and only show events in current month
           return event.title !== "Tech Startup Summit Mumbai" && 
                  event.title !== "Business Networking Meetup" &&
-                 eventDate > oneMonthFromNow;
+                 eventDate >= startOfMonth && 
+                 eventDate <= endOfMonth;
         });
         const limitedEvents = filteredEvents.slice(0, 6);
         setUpcomingEvents(limitedEvents);
