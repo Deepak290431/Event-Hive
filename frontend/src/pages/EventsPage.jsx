@@ -46,17 +46,25 @@ const EventsPage = () => {
   useEffect(() => {
     setLoading(true);
     api.get("/events").then(({ data }) => {
+      const today = new Date('2025-12-15'); // Today's date
+      const oneMonthFromNow = new Date(today);
+      oneMonthFromNow.setMonth(oneMonthFromNow.getMonth() + 1);
       const now = new Date();
       const activeEvents = [];
       const finishedEventIds = [];
 
-      // Separate active and finished events
+      // Separate active and finished events, and filter for 1-month window
       data.forEach((event) => {
+        const eventDate = new Date(event.startTime);
         const endTime = new Date(event.endTime);
-        if (endTime > now) {
-          activeEvents.push(event);
-        } else {
+        
+        // Delete finished events
+        if (endTime <= now) {
           finishedEventIds.push(event._id);
+        } 
+        // Only show events that are after 1 month from today
+        else if (eventDate > oneMonthFromNow) {
+          activeEvents.push(event);
         }
       });
 

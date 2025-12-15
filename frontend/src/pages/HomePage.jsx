@@ -30,11 +30,17 @@ const HomePage = () => {
   useEffect(() => {
     api.get('/events')
       .then(({ data }) => {
-        const filteredEvents = data.filter(event => 
-          event.title !== "Tech Startup Summit Mumbai" && 
-          // event.title !== "Business Network Meetup" &&
-          event.title !== "Business Networking Meetup"
-        );
+        const today = new Date('2025-12-15'); // Today's date
+        const oneMonthFromNow = new Date(today);
+        oneMonthFromNow.setMonth(oneMonthFromNow.getMonth() + 1);
+        
+        const filteredEvents = data.filter(event => {
+          const eventDate = new Date(event.startTime);
+          // Filter out specific events and only show events after 1 month from today
+          return event.title !== "Tech Startup Summit Mumbai" && 
+                 event.title !== "Business Networking Meetup" &&
+                 eventDate > oneMonthFromNow;
+        });
         const limitedEvents = filteredEvents.slice(0, 6);
         setUpcomingEvents(limitedEvents);
       })
